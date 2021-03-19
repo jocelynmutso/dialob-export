@@ -1,5 +1,6 @@
 import { Integrations, Exporter, DialobServiceImpl } from '../'
 import generator from 'bigquery-schema-generator';
+import * as StringSanitizer from "string-sanitizer";
 
 import sanitize from './Sanitizer';
 
@@ -70,14 +71,14 @@ class ExporterServiceImpl implements Exporter.ExportService {
     }
     const schema = generator(schemaTester);
     const labels: Record<string, string> = {};
-    labels["formId"] = report.id;
-    labels["formName"] = report.name;
-    labels["formLabel"] = report.label;
-    labels["formTag"] = report.tag;
-    labels["formLang"] = options.lang;
+    labels["formId"] = this.sanitizeLabel(report.id);
+    labels["formName"] = this.sanitizeLabel(report.name);
+    labels["formLabel"] = this.sanitizeLabel(report.label);
+    labels["formTag"] = this.sanitizeLabel(report.tag);
+    labels["formLang"] = this.sanitizeLabel(options.lang);
     
     return {
-      id: report.id + '-' + report.tag + '-' + options.lang,
+      id: StringSanitizer.sanitize.addUnderscore(report.id + '-' + report.tag + '-' + options.lang),
       from: report,
       src: data,
       lang: options.lang ? options.lang : 'identifiers',
@@ -86,6 +87,14 @@ class ExporterServiceImpl implements Exporter.ExportService {
       schema: schema,
       updateable: false
     };
+  }
+
+  sanitizeLabel(label: string) {
+    const result = StringSanitizer.sanitize.addUnderscore(label.toLowerCase());
+    if(result.length > 63) {
+      return result.substring(0, 63)
+    }
+    return result;
   }
 
   async saveExport(data: Exporter.Export): Promise<void> {
