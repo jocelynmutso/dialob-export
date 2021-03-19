@@ -48,7 +48,7 @@ class ExporterServiceImpl implements Exporter.ExportService {
     }
     return reports;
   }
-  
+
   async getExportData(report: Exporter.Report, onEntryLoaded: () => void): Promise<Exporter.ExportData> {
     const data: Exporter.ExportData = {};
     for (const questionnaireId of report.rows.completed) {
@@ -71,14 +71,14 @@ class ExporterServiceImpl implements Exporter.ExportService {
     }
     const schema = generator(schemaTester);
     const labels: Record<string, string> = {};
-    labels["formId"] = this.sanitizeLabel(report.id);
-    labels["formName"] = this.sanitizeLabel(report.name);
-    labels["formLabel"] = this.sanitizeLabel(report.label);
-    labels["formTag"] = this.sanitizeLabel(report.tag);
-    labels["formLang"] = this.sanitizeLabel(options.lang);
+    //labels["formId"] = this.sanitizeLabel(report.id);
+    labels["form_name"] = this.sanitizeLabel(report.name);
+    labels["form_label"] = this.sanitizeLabel(report.label);
+    labels["form_tag"] = this.sanitizeLabel(report.tag);
+    labels["form_lang"] = this.sanitizeLabel(options.lang);
     
     return {
-      id: StringSanitizer.sanitize.addUnderscore(report.id + '-' + report.tag + '-' + options.lang),
+      id: StringSanitizer.sanitize.addUnderscore(report.id + ' ' + report.tag + ' ' + options.lang),
       from: report,
       src: data,
       lang: options.lang ? options.lang : 'identifiers',
